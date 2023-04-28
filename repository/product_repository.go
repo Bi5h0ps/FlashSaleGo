@@ -40,6 +40,8 @@ func (p *ProductRepository) Insert(product *model.Product) (productId int64, err
 	if err = p.Conn(); err != nil {
 		return
 	}
+	//user are not allowed to set product id themselves
+	product.ID = 0
 	result := p.myGormConn.Create(product)
 	if result.Error != nil {
 		return 0, result.Error
@@ -73,6 +75,7 @@ func (p *ProductRepository) SelectByKey(productID int64) (productResult *model.P
 	if err = p.Conn(); err != nil {
 		return
 	}
+	productResult = &model.Product{}
 	if result := p.myGormConn.First(productResult, productID); result.Error != nil {
 		return nil, result.Error
 	}
@@ -83,7 +86,7 @@ func (p *ProductRepository) SelectAll() (productArray []*model.Product, err erro
 	if err = p.Conn(); err != nil {
 		return
 	}
-	if result := p.myGormConn.Find(productArray); result.Error != nil {
+	if result := p.myGormConn.Find(&productArray); result.Error != nil {
 		return nil, result.Error
 	}
 	return
