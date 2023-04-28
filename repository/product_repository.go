@@ -16,22 +16,19 @@ type IProduct interface {
 	SubProductNum(productID int64) error
 }
 
+const defaultDB = "root:Nmdhj2e2d@tcp(127.0.0.1:3306)/flashSaleDB?charset=utf8"
+
 type ProductRepository struct {
-	table      string
 	myGormConn *gorm.DB
 }
 
 func (p *ProductRepository) Conn() (err error) {
-	dsn := "root:Nmdhj2e2d@tcp(127.0.0.1:3306)/flashSaleDB?charset=utf8"
 	if p.myGormConn == nil {
-		p.myGormConn, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		p.myGormConn, err = gorm.Open(mysql.Open(defaultDB), &gorm.Config{})
 		if err != nil {
 			return
 		}
 		p.myGormConn.AutoMigrate(&model.Product{})
-	}
-	if p.table == "" {
-		p.table = "product"
 	}
 	return nil
 }
@@ -104,6 +101,6 @@ func (p *ProductRepository) SubProductNum(productID int64) (err error) {
 	return
 }
 
-func NewProductRepository(table string, db *gorm.DB) IProduct {
-	return &ProductRepository{table: table, myGormConn: db}
+func NewProductRepository(db *gorm.DB) IProduct {
+	return &ProductRepository{myGormConn: db}
 }
