@@ -1,6 +1,9 @@
 package main
 
 import (
+	"FlashSaleGo/backend/web/controllers"
+	"FlashSaleGo/repository"
+	"FlashSaleGo/service"
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -39,21 +42,34 @@ func main() {
 		"backend/web/views/product/add.html")
 	templates.AddFromFiles("all", "backend/web/views/shared/layout.html",
 		"backend/web/views/product/view.html")
+	templates.AddFromFiles("manager", "backend/web/views/shared/layout.html",
+		"backend/web/views/product/manager.html")
 	templates.AddFromFiles("order", "backend/web/views/shared/layout.html",
 		"backend/web/views/order/view.html")
 	// Set the router HTML templates to the multitemplate engine
 	ginServer.HTMLRender = templates
-	ginServer.GET("/product/add", func(context *gin.Context) {
-		// Render the view.html child template inside the layout.html parent template
-		context.HTML(http.StatusOK, "add", gin.H{})
-	})
-	ginServer.GET("/product/all", func(context *gin.Context) {
-		// Render the view.html child template inside the layout.html parent template
-		context.HTML(http.StatusOK, "all", gin.H{})
-	})
-	ginServer.GET("/order", func(context *gin.Context) {
-		// Render the view.html child template inside the layout.html parent template
-		context.HTML(http.StatusOK, "order", gin.H{})
-	})
+
+	repoProduct := repository.NewProductRepository(nil)
+	serviceProduct := service.NewProductService(repoProduct)
+	controllerProduct := controllers.ProductController{ProductService: serviceProduct}
+
+	product := ginServer.Group("product")
+	{
+		product.GET("/all", controllerProduct.GetAll)
+		product.GET("/add", controllerProduct.GetAdd)
+		product.GET("/manager", controllerProduct.GetManager)
+		product.POST("/update", controllerProduct.PostUpdate)
+		product.POST("/add", controllerProduct.PostAdd)
+		product.GET("/delete", controllerProduct.GetDelete)
+	}
+
+	repoOrder := repository.NewOrderRepository(nil)
+	serviceOrder := service.NewOrderService(repoOrder)
+	controllerOrder := controllers.OrderController{OrderService: serviceOrder}
+
+	order := ginServer.Group("order")
+	{
+		order.GET("/", controllerOrder.GetOrder)
+	}
 	ginServer.Run(":8080")
 }
