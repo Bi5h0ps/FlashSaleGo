@@ -1,9 +1,7 @@
 package main
 
 import (
-	"FlashSaleGo/backend/web/controllers"
-	"FlashSaleGo/repository"
-	"FlashSaleGo/service"
+	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -13,12 +11,6 @@ func main() {
 	//logger middleware
 	ginServer.Use(gin.Logger())
 	gin.SetMode(gin.DebugMode)
-	// Load all templates from the views directory and subdirectories
-	ginServer.LoadHTMLGlob("backend/web/views/**/*.html")
-
-	ginServer.Static("/assets", "./backend/web/assets")
-	// Register a layout
-	ginServer.StaticFile("/", "backend/web/views/shared/layout.html")
 
 	ginServer.NoRoute(func(c *gin.Context) {
 		c.HTML(http.StatusNotFound, "shared/error.html", gin.H{
@@ -37,18 +29,31 @@ func main() {
 		c.Next()
 	})
 
-	// Set up product repository and service
-	productRepo := repository.NewProductRepository(nil)
-	productService := service.NewProductService(productRepo)
+	ginServer.LoadHTMLGlob("backend/web/views/**/*.html")
+	ginServer.Static("/assets", "./backend/web/assets")
 
-	// Set up product controller and register with Gin
-	product := ginServer.Group("/product")
-	{
-		productController := controllers.ProductController{ProductService: productService}
-		product.GET("/all", productController.GetAll)
-		product.GET("/add", productController.GetAdd)
-		product.GET("/manager", productController.GetAdd)
-	}
-
+	// Define multitemplate templates
+	templates := multitemplate.New()
+	// Add the parent template
+	templates.AddFromFiles("add", "backend/web/views/shared/layout.html",
+		"backend/web/views/product/add.html")
+	templates.AddFromFiles("all", "backend/web/views/shared/layout.html",
+		"backend/web/views/product/view.html")
+	templates.AddFromFiles("order", "backend/web/views/shared/layout.html",
+		"backend/web/views/order/view.html")
+	// Set the router HTML templates to the multitemplate engine
+	ginServer.HTMLRender = templates
+	ginServer.GET("/product/add", func(context *gin.Context) {
+		// Render the view.html child template inside the layout.html parent template
+		context.HTML(http.StatusOK, "add", gin.H{})
+	})
+	ginServer.GET("/product/all", func(context *gin.Context) {
+		// Render the view.html child template inside the layout.html parent template
+		context.HTML(http.StatusOK, "all", gin.H{})
+	})
+	ginServer.GET("/order", func(context *gin.Context) {
+		// Render the view.html child template inside the layout.html parent template
+		context.HTML(http.StatusOK, "order", gin.H{})
+	})
 	ginServer.Run(":8080")
 }
