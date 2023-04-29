@@ -10,13 +10,14 @@ import (
 type IUserService interface {
 	IsPwdSuccess(userName string, pwd string) (user *model.User, isOk bool)
 	AddUser(user *model.User) (userId int64, err error)
+	GetUserByUsername(username string) (*model.User, error)
 }
 
 type UserService struct {
 	UserRepository repository.IUser
 }
 
-func (u UserService) IsPwdSuccess(userName string, pwd string) (user *model.User, isOk bool) {
+func (u *UserService) IsPwdSuccess(userName string, pwd string) (user *model.User, isOk bool) {
 	var err error
 	user, err = u.UserRepository.Select(userName)
 	if err != nil {
@@ -29,13 +30,17 @@ func (u UserService) IsPwdSuccess(userName string, pwd string) (user *model.User
 	return
 }
 
-func (u UserService) AddUser(user *model.User) (userId int64, err error) {
+func (u *UserService) AddUser(user *model.User) (userId int64, err error) {
 	pwdByte, err := GeneratePassword(user.HashPassword)
 	if err != nil {
 		return 0, err
 	}
 	user.HashPassword = string(pwdByte)
 	return u.UserRepository.Insert(user)
+}
+
+func (u *UserService) GetUserByUsername(username string) (user *model.User, err error) {
+	return u.UserRepository.Select(username)
 }
 
 // ValidatePassword compares hashed password stored in the database with user provided password

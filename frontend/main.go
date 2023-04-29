@@ -2,6 +2,8 @@ package main
 
 import (
 	"FlashSaleGo/frontend/web/controller"
+	"FlashSaleGo/initialization"
+	"FlashSaleGo/middleware"
 	"FlashSaleGo/repository"
 	"FlashSaleGo/service"
 	"github.com/gin-contrib/multitemplate"
@@ -10,6 +12,7 @@ import (
 )
 
 func main() {
+	initialization.LoadEnvVariables()
 	ginServer := gin.Default()
 	//logger middleware
 	ginServer.Use(gin.Logger())
@@ -42,9 +45,22 @@ func main() {
 	serviceProduct := service.NewProductService(repoProduct)
 	controllerProduct := controller.ProductController{ProductService: serviceProduct}
 
+	repoUser := repository.NewUserRepository(nil)
+	serviceUser := service.NewUserService(repoUser)
+	controllerUser := controller.UserController{UserService: serviceUser}
+
 	product := ginServer.Group("product")
+	product.Use(middleware.RequireAuth(serviceUser))
 	{
 		product.GET("/detail", controllerProduct.GetDetail)
+	}
+
+	user := ginServer.Group("user")
+	{
+		user.GET("/login", controllerUser.GetLogin)
+		user.POST("/login", controllerUser.PostLogin)
+		user.GET("/register", controllerUser.GetRegister)
+		user.POST("/register", controllerUser.PostRegister)
 	}
 
 	ginServer.Run(":9092")
