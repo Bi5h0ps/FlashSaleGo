@@ -35,19 +35,8 @@ func main() {
 	ginServer.LoadHTMLGlob("backend/web/views/**/*.html")
 	ginServer.Static("/assets", "./backend/web/assets")
 
-	// Define multitemplate templates
-	templates := multitemplate.New()
-	// Add the parent template
-	templates.AddFromFiles("add", "backend/web/views/shared/layout.html",
-		"backend/web/views/product/add.html")
-	templates.AddFromFiles("all", "backend/web/views/shared/layout.html",
-		"backend/web/views/product/view.html")
-	templates.AddFromFiles("manager", "backend/web/views/shared/layout.html",
-		"backend/web/views/product/manager.html")
-	templates.AddFromFiles("order", "backend/web/views/shared/layout.html",
-		"backend/web/views/order/view.html")
 	// Set the router HTML templates to the multitemplate engine
-	ginServer.HTMLRender = templates
+	ginServer.HTMLRender = loadTemplates()
 
 	repoProduct := repository.NewProductRepository(nil)
 	serviceProduct := service.NewProductService(repoProduct)
@@ -71,5 +60,21 @@ func main() {
 	{
 		order.GET("/", controllerOrder.GetOrder)
 	}
-	ginServer.Run(":8080")
+
+	ginServer.Run(":9090")
+}
+
+func loadTemplates() (templates multitemplate.Renderer) {
+	// Define multitemplate templates
+	templates = multitemplate.New()
+	// Add the parent template
+	templates.AddFromFiles("add", "backend/web/views/shared/layout.html",
+		"backend/web/views/product/add.html")
+	templates.AddFromFiles("all", "backend/web/views/shared/layout.html",
+		"backend/web/views/product/view.html")
+	templates.AddFromFiles("manager", "backend/web/views/shared/layout.html",
+		"backend/web/views/product/manager.html")
+	templates.AddFromFiles("order", "backend/web/views/shared/layout.html",
+		"backend/web/views/order/view.html")
+	return
 }
