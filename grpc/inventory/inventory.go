@@ -1,6 +1,7 @@
 package inventory
 
 import (
+	"fmt"
 	"golang.org/x/net/context"
 	"sync"
 )
@@ -11,17 +12,18 @@ type ServerInventory struct {
 	mutex          sync.Mutex
 }
 
-func (s ServerInventory) UpdateProductCount(ctx context.Context, info *ProductInfo) (*NumberResult, error) {
+func (s *ServerInventory) UpdateProductCount(ctx context.Context, info *ProductInfo) (*NumberResult, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	if s.sum < s.inventoryCount {
 		s.sum += 1
+		fmt.Printf("Success, sum: %v\n", s.sum)
 		return &NumberResult{IsInventorySuccess: true}, nil
 	}
 	return &NumberResult{IsInventorySuccess: false}, nil
 }
 
-func (s ServerInventory) mustEmbedUnimplementedInventoryServiceServer() {
+func (s *ServerInventory) mustEmbedUnimplementedInventoryServiceServer() {
 	panic("implement me")
 }
 

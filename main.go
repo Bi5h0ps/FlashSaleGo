@@ -10,6 +10,7 @@ import (
 
 var localHost = ""
 var inventoryIP = ":9094"
+var localHostPort = ":9093"
 
 // distributed machine's ip address
 var hostArray = []string{"127.0.0.1:9093"}
@@ -25,7 +26,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	s := order.NewOrderServer(localHost, inventoryIP, hostArray)
+	s := order.NewOrderServer(localHost+localHostPort, inventoryIP, hostArray)
 	defer s.Destroy()
 
 	grpcServer := grpc.NewServer()

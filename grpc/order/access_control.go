@@ -1,7 +1,7 @@
-package distributed
+package order
 
 import (
-	"FlashSaleGo/grpc/order"
+	"FlashSaleGo/distributed"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -40,7 +40,7 @@ func (a *AccessControl) GetDataFromMap(uid int64) (result *CloudData, err error)
 	if data != nil {
 		return data, nil
 	}
-	return a.SetNewRecord(uid), nil
+	return nil, nil
 }
 
 func (a *AccessControl) GetDataFromOtherMap(uid int64, hostRequest string) (result *CloudData, err error) {
@@ -50,12 +50,18 @@ func (a *AccessControl) GetDataFromOtherMap(uid int64, hostRequest string) (resu
 		log.Fatalf("did not connect: %s", err)
 	}
 	defer conn.Close()
-	c := order.NewOrderServiceClient(conn)
-	response, err := c.GetUserCloudData(context.Background(), &order.UserInfo{UserID: uid})
+	c := NewOrderServiceClient(conn)
+	response, err := c.GetUserCloudData(context.Background(), &UserInfo{UserID: uid})
+	if err != nil {
+		return nil, err
+	}
+	if response == nil {
+		return nil, nil
+	}
 	return &CloudData{LastOrderTime: response.TimeStamp}, nil
 }
 
-func (a *AccessControl) GetDistributedRight(uid int64, hashConsistant *Consistent, localhost string) bool {
+func (a *AccessControl) GetDistributedRight(uid int64, hashConsistant *distributed.Consistent, localhost string) bool {
 	uidString := strconv.FormatInt(uid, 10)
 	//find server base on user id
 	hostRequest, err := hashConsistant.Get(uidString)
@@ -76,11 +82,20 @@ func (a *AccessControl) GetDistributedRight(uid int64, hashConsistant *Consisten
 		return false
 	}
 	//user note allowed to make another purchase in a one-minute window
-	return checkUserOrderFrequency(data.LastOrderTime, time.Minute)
+	if data != nil {
+		result := checkUserOrderFrequency(data.LastOrderTime, time.Minute)
+		if result {
+			a.SetNewRecord(uid)
+		}
+		return result
+	} else {
+		a.SetNewRecord(uid)
+		return true
+	}
 }
 
 func checkUserOrderFrequency(userTimeStamp int64, duration time.Duration) bool {
-	return time.Now().Add(-1*duration).Unix() < userTimeStamp
+	return time.Now().Add(-1*duration).Unix() > userTimeStamp
 }
 func NewAccessControlUnit() *AccessControl {
 	return &AccessControl{sourceArray: make(map[int64]*CloudData)}

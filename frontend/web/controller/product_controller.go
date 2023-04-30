@@ -67,12 +67,24 @@ func (p *ProductController) GetOrder(c *gin.Context) {
 			ProductID: productID,
 			UserID:    userID})
 	if err != nil {
-		log.Fatalf("Error when calling MakeOrder: %s", err)
+		c.HTML(http.StatusBadRequest, "result", gin.H{
+			"showMessage": err,
+			"orderID":     "000",
+		})
+		return
 	}
-	log.Printf("Order Status from server: %s", response.IsOrderSuccess)
+
+	if response.IsOrderSuccess != "true" {
+		c.HTML(http.StatusOK, "result", gin.H{
+			"showMessage": "item sold out",
+			"orderID":     "000",
+		})
+		return
+	}
 
 	c.HTML(http.StatusOK, "result", gin.H{
 		"showMessage": response.IsOrderSuccess,
 		"orderID":     "000",
 	})
+	return
 }

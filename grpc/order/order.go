@@ -21,7 +21,7 @@ type ServerOrder struct {
 	// Inventory Server
 	inventoryIP string
 	// Distributed
-	accessControlUnit *distributed.AccessControl
+	accessControlUnit *AccessControl
 	// Consistant Hashing
 	hashConsistent *distributed.Consistent
 }
@@ -68,6 +68,9 @@ func (s *ServerOrder) MakeOrder(ctx context.Context, message *OrderInfo) (*Order
 
 func (s *ServerOrder) GetUserCloudData(ctx context.Context, message *UserInfo) (*UserCloudData, error) {
 	data, err := s.accessControlUnit.GetDataFromMap(message.UserID)
+	if data == nil {
+		return nil, err
+	}
 	return &UserCloudData{TimeStamp: data.LastOrderTime}, err
 }
 
@@ -84,7 +87,7 @@ func NewOrderServer(localHost, inventoryIP string, hostArray []string) (server *
 		rabbitMq:          rabbitmq.NewRabbitMQSimple("iRaidenProduct"),
 		localHost:         localHost,
 		inventoryIP:       inventoryIP,
-		accessControlUnit: distributed.NewAccessControlUnit(),
+		accessControlUnit: NewAccessControlUnit(),
 		hashConsistent:    hashConsistent,
 	}
 	return
