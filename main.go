@@ -8,21 +8,24 @@ import (
 	"net"
 )
 
-var LocalHost = ""
-var Port = "9093"
+var localHost = ""
+var port = "9093"
+
+// distributed machine's ip address
+var hostArray = []string{"127.0.0.1", "127.0.0.1"}
 
 func main() {
-	lis, err := net.Listen("tcp", ":"+Port)
+	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
-		log.Fatalf("Failed to listen on port %v: %v", Port, err)
+		log.Fatalf("Failed to listen on port %v: %v", port, err)
 	}
 
-	LocalHost, err = common.GetIntranceIp()
+	localHost, err = common.GetIntranceIp()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	s := order.NewOrderServer(LocalHost, Port)
+	s := order.NewOrderServer(localHost, port, hostArray)
 	defer s.Destroy()
 
 	grpcServer := grpc.NewServer()

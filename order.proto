@@ -12,6 +12,15 @@ message OrderResult {
   string isOrderSuccess = 1;
 }
 
+message UserInfo {
+  int64 userID = 1;
+}
+
+message UserCloudData {
+  int64 timeStamp = 1;
+}
+
 service  OrderService {
   rpc MakeOrder(OrderInfo) returns (OrderResult) {}
+  rpc GetUserCloudData(UserInfo) returns (UserCloudData) {}
 }
