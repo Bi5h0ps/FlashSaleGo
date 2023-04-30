@@ -9,15 +9,15 @@ import (
 )
 
 var localHost = ""
-var port = "9093"
+var inventoryIP = ":9094"
 
 // distributed machine's ip address
-var hostArray = []string{"127.0.0.1", "127.0.0.1"}
+var hostArray = []string{"127.0.0.1:9093"}
 
 func main() {
-	lis, err := net.Listen("tcp", ":"+port)
+	lis, err := net.Listen("tcp", ":9093")
 	if err != nil {
-		log.Fatalf("Failed to listen on port %v: %v", port, err)
+		log.Fatalf("Failed to listen on port 9093: %v", err)
 	}
 
 	localHost, err = common.GetIntranceIp()
@@ -25,13 +25,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	s := order.NewOrderServer(localHost, port, hostArray)
+	s := order.NewOrderServer(localHost, inventoryIP, hostArray)
 	defer s.Destroy()
 
 	grpcServer := grpc.NewServer()
 
 	order.RegisterOrderServiceServer(grpcServer, s)
 	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("Failed to serve gRPC server over port %v:%v", port, err)
+		log.Fatalf("Failed to serve gRPC server over port 9093:%v", err)
 	}
 }
