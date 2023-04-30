@@ -39,9 +39,11 @@ func (p *ProductController) GetDetail(c *gin.Context) {
 
 func (p *ProductController) GetOrder(c *gin.Context) {
 	var userName string
+	var userID int64
 	if user, exists := c.Get("user"); exists {
 		if u, ok := user.(*model.User); ok {
 			userName = u.UserName
+			userID = u.ID
 		}
 	}
 	productID, err := strconv.ParseInt(c.Query("productID"), 10, 64)
@@ -59,7 +61,11 @@ func (p *ProductController) GetOrder(c *gin.Context) {
 	}
 	defer conn.Close()
 	client := order.NewOrderServiceClient(conn)
-	response, err := client.MakeOrder(context.Background(), &order.OrderInfo{Username: userName, ProductID: productID})
+	response, err := client.MakeOrder(context.Background(),
+		&order.OrderInfo{
+			Username:  userName,
+			ProductID: productID,
+			UserID:    userID})
 	if err != nil {
 		log.Fatalf("Error when calling MakeOrder: %s", err)
 	}

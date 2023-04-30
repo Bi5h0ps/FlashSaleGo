@@ -32,6 +32,6 @@ func main() {
 
 	order.RegisterOrderServiceServer(grpcServer, s)
 	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("Failed to serve gRPC server over port 9000:%v", err)
+		log.Fatalf("Failed to serve gRPC server over port %v:%v", port, err)
 	}
 }

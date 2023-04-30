@@ -6,6 +6,7 @@ option go_package = "/grpc/order";
 message OrderInfo {
   string username = 1;
   int64 productID = 2;
+  int64 userID = 3;
 }
 
 message OrderResult {

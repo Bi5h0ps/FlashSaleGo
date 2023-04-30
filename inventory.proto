@@ -1,0 +1,16 @@
+syntax = "proto3";
+package inventory;
+
+option go_package = "/grpc/inventory";
+
+message ProductInfo {
+  int64 productID = 1;
+}
+
+message NumberResult {
+  bool isInventorySuccess = 1;
+}
+
+service  InventoryService {
+  rpc UpdateProductCount(ProductInfo) returns (NumberResult) {}
+}
