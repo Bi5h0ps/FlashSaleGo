@@ -31,7 +31,7 @@ func NewRabbitMQ(queueName string, exchange string, key string) *RabbitMQ {
 	return &RabbitMQ{QueueName: queueName, Exchange: exchange, Key: key, Mqurl: MQURL}
 }
 
-func (r *RabbitMQ) Destory() {
+func (r *RabbitMQ) Destroy() {
 	r.channel.Close()
 	r.conn.Close()
 }

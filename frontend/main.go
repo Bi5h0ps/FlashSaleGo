@@ -53,6 +53,7 @@ func main() {
 	product.Use(middleware.RequireAuth(serviceUser))
 	{
 		product.GET("/detail", controllerProduct.GetDetail)
+		product.GET("/order", controllerProduct.GetOrder)
 	}
 
 	user := ginServer.Group("user")
