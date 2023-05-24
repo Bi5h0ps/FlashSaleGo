@@ -21,6 +21,7 @@ func main() {
 		log.Fatalf("Failed to listen on port 9093: %v", err)
 	}
 
+	//get localHost address
 	localHost, err = common.GetIntranceIp()
 	if err != nil {
 		log.Fatal(err)

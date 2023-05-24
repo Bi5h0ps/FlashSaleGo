@@ -21,7 +21,7 @@ type AccessControl struct {
 	sync.RWMutex
 }
 
-func (a *AccessControl) GetNewRecord(uid int64) *CloudData {
+func (a *AccessControl) GetRecord(uid int64) *CloudData {
 	a.RLock()
 	defer a.RUnlock()
 	return a.sourceArray[uid]
@@ -36,7 +36,7 @@ func (a *AccessControl) SetNewRecord(uid int64) *CloudData {
 }
 
 func (a *AccessControl) GetDataFromMap(uid int64) (result *CloudData, err error) {
-	data := a.GetNewRecord(uid)
+	data := a.GetRecord(uid)
 	if data != nil {
 		return data, nil
 	}
@@ -61,10 +61,10 @@ func (a *AccessControl) GetDataFromOtherMap(uid int64, hostRequest string) (resu
 	return &CloudData{LastOrderTime: response.TimeStamp}, nil
 }
 
-func (a *AccessControl) GetDistributedRight(uid int64, hashConsistant *distributed.Consistent, localhost string) bool {
+func (a *AccessControl) GetDistributedRight(uid int64, hashConsistent *distributed.Consistent, localhost string) bool {
 	uidString := strconv.FormatInt(uid, 10)
 	//find server base on user id
-	hostRequest, err := hashConsistant.Get(uidString)
+	hostRequest, err := hashConsistent.Get(uidString)
 	if err != nil {
 		return false
 	}

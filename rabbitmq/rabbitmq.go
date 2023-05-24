@@ -11,7 +11,7 @@ import (
 )
 
 // MQURL url 格式 amqp://账号:密码@rabbitmq服务器地址:端口号/vhost
-const MQURL = "amqp://Raiden-User:hj2e2d@127.0.0.1:5672/iRaiden"
+const MQURL = "amqp://iraidenuser:hj2e2d@127.0.0.1:5672/iRaiden"
 
 type RabbitMQ struct {
 	conn    *amqp.Connection
@@ -124,9 +124,9 @@ func (r *RabbitMQ) ConsumeSimple(orderService service.IOrderService,
 
 	//control current flow, prevent database crash
 	r.channel.Qos(
-		1, //maximum number of message consumer gets per time
-		0,
-		false, //if set to true, available to channel
+		1,     //maximum number of message consumer gets per time
+		0,     //specifies the maximum amount of content (in bytes) that a consumer can have.
+		false, //If global is set to true, the QoS settings apply to all consumers on the channel
 	)
 
 	forever := make(chan bool)
@@ -150,6 +150,8 @@ func (r *RabbitMQ) ConsumeSimple(orderService service.IOrderService,
 			}
 			//if true,confirm all unconfirmed message, used in batch processing
 			//if false, confirm current message
+			//calling msg.Ack(true) does not acknowledge all unconfirmed messages in the queue.
+			//It is used to acknowledge multiple messages up to and including the message being processed.
 			d.Ack(false)
 		}
 	}()

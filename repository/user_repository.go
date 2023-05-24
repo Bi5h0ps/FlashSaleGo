@@ -25,7 +25,10 @@ func (p *UserRepository) Conn() (err error) {
 		if err != nil {
 			return
 		}
-		p.myGormConn.AutoMigrate(&model.User{})
+		err = p.myGormConn.AutoMigrate(&model.User{})
+		if err != nil {
+			return
+		}
 	}
 	return nil
 }

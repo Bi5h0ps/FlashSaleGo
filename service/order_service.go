@@ -11,7 +11,6 @@ type IOrderService interface {
 	UpdateOrder(*model.Order) error
 	InsertOrder(*model.Order) (int64, error)
 	GetAllOrder() ([]*model.Order, error)
-	//GetAllOrderInfo() (map[int]map[string]string, error)
 	InsertOrderByMessage(*model.Message) (int64, error)
 }
 

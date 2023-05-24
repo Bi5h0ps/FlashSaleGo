@@ -27,7 +27,7 @@ func (o *OrderRepository) Conn() (err error) {
 		if err != nil {
 			return
 		}
-		o.myGormConn.AutoMigrate(&model.Product{})
+		o.myGormConn.AutoMigrate(&model.Order{})
 	}
 	return nil
 }

@@ -69,7 +69,6 @@ func (p *ProductController) GetOrder(c *gin.Context) {
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "result", gin.H{
 			"showMessage": err,
-			"orderID":     "000",
 		})
 		return
 	}
@@ -77,14 +76,12 @@ func (p *ProductController) GetOrder(c *gin.Context) {
 	if response.IsOrderSuccess != "true" {
 		c.HTML(http.StatusOK, "result", gin.H{
 			"showMessage": "item sold out",
-			"orderID":     "000",
 		})
 		return
 	}
 
 	c.HTML(http.StatusOK, "result", gin.H{
-		"showMessage": response.IsOrderSuccess,
-		"orderID":     "000",
+		"showMessage": "Flash Sale Success",
 	})
 	return
 }

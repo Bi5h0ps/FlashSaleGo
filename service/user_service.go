@@ -31,10 +31,12 @@ func (u *UserService) IsPwdSuccess(userName string, pwd string) (user *model.Use
 }
 
 func (u *UserService) AddUser(user *model.User) (userId int64, err error) {
+	//user.HashPassword is user's input here, unhashed
 	pwdByte, err := GeneratePassword(user.HashPassword)
 	if err != nil {
 		return 0, err
 	}
+	//replace password by hashed password and write to the database
 	user.HashPassword = string(pwdByte)
 	return u.UserRepository.Insert(user)
 }
